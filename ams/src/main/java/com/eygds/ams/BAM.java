@@ -61,10 +61,10 @@ public class BAM {
 			case 2:
 				System.out.println("Please enter account number:");
 				Long accNum =  sc.nextLong();
-				System.out.println("Enter account type:\n Saving Acoount Current Account");
-				String accType =  sc.next();
+				System.out.println("Enter account type:\n1. Savings Account\n2. Current Account");
+				int accType =  sc.nextInt();
 				System.out.println("Please enter your pin:");
-				int pin =  sc.nextInt();
+				String pin =  sc.next();
 				System.out.println("Enter amount:");
 				int amount =  sc.nextInt();
 				service.withdrawal(accNum, pin, amount, accType);
@@ -73,8 +73,8 @@ public class BAM {
 			case 3:
 				System.out.println("Please enter account number:");
 				Long accNum1 =  sc.nextLong();
-				System.out.println("Enter account type:\n Savings Account\n Current Account");
-				String accType1 =  sc.next();
+				System.out.println("Enter account type:\n1. Savings Account\n2. Current Account");
+				int accType1 =  sc.nextInt();
 				System.out.println("Enter amount:");
 				int amount1 =  sc.nextInt();
 				service.deposit(accNum1, amount1, accType1);
