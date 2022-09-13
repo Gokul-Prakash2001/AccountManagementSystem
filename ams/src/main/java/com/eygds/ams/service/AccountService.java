@@ -9,6 +9,17 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+package com.eygds.ams.service;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.eygds.ams.dao.CurAccountDao;
 import com.eygds.ams.dao.SavAccountDao;
 
@@ -28,7 +39,9 @@ public class AccountService {
 	public SavingsAccount addSavAcc(SavingsAccount account) {
 		savList = savDao.readDataFromFile();
 		String appStatus = "Received";
-		logger.info(appStatus);
+		String appRef = getSaltString();
+		logger.info("Application " + appStatus);
+		logger.info("Your application reference ID : "+ appRef);
 		if (savList.contains(account)) {
 			logger.error("Account with account number " + account.getAccNum() + " already exists.");
 			return null;
@@ -37,12 +50,17 @@ public class AccountService {
 				if (CalculateAge.getAge(account.getDob()) < 18) {
 					appStatus = "Rejected";
 					logger.info("Apllication has been " + appStatus);
+					return null;
 				} else {
 					appStatus = "Accepted";
 					Long accNum = AccountService.generateRandom();
+					Random random = new Random();
+					String pin = String.format("%04d", random.nextInt(10000));
 					account.setAccNum(accNum);
+					account.setPin(pin);
 					logger.info("Your application has been " + appStatus);
 					logger.info("Your Account Number is " + accNum);
+					logger.info("Your PIN is " + pin);
 
 				}
 			} catch (ParseException e) {
@@ -58,6 +76,9 @@ public class AccountService {
 	public CurrentAccount addCurAcc(CurrentAccount account) {
 		curList = curDao.readDataFromFile();
 		String appStatus = "Received";
+		String appRef = getSaltString();
+		logger.info("Application " + appStatus);
+		logger.info("Your application reference ID : "+ appRef);
 		logger.info(appStatus);
 		if (curList.contains(account)) {
 			logger.error("Account with account number " + account.getAccNum() + " already exists.");
@@ -67,12 +88,17 @@ public class AccountService {
 				if (CalculateAge.getAge(account.getDob()) < 18) {
 					appStatus = "Rejected";
 					logger.info("Application has been " + appStatus);
+					return null;
 				} else {
 					appStatus = "Accepted";
 					Long accNum = AccountService.generateRandom();
+					Random random = new Random();
+					String pin = String.format("%04d", random.nextInt(10000));
 					account.setAccNum(accNum);
+					account.setPin(pin);
 					logger.info("Your application has been " + appStatus);
 					logger.info("Your Account Number is " + accNum);
+					logger.info("Your PIN is " + pin);
 
 				}
 			} catch (ParseException e) {
@@ -85,10 +111,10 @@ public class AccountService {
 		}
 	}
 
-	public void withdrawal(Long accNum, int pin, int amount, String accType) {
-		if (accType == "Savings") {
+	public void withdrawal(Long accNum, String pin, int amount, int accType) {
+		if (accType == 1) {
 			savList = savDao.readDataFromFile();
-			Optional<SavingsAccount> accOptional = savList.stream().filter(e -> e.getAccNum() == accNum).findAny();
+			Optional<SavingsAccount> accOptional = savList.stream().filter(e -> e.getAccNum().equals(accNum)).findAny();
 			if (accOptional.isPresent()) {
 				SavingsAccount temp = accOptional.get();
 				if (temp.getTransCount() > 2) {
@@ -117,14 +143,14 @@ public class AccountService {
 					}
 
 				}
+			} else {
+				throw new AccountNotFoundException("Account does not exist.");
 			}
-
-			throw new AccountNotFoundException("Account does not exist.");
 		}
 
-		else if (accType == "Current") {
+		else if (accType == 2) {
 			curList = curDao.readDataFromFile();
-			Optional<CurrentAccount> accOptional = curList.stream().filter(e -> e.getAccNum() == accNum).findAny();
+			Optional<CurrentAccount> accOptional = curList.stream().filter(e -> e.getAccNum().equals(accNum)).findAny();
 			if (accOptional.isPresent()) {
 				CurrentAccount temp = accOptional.get();
 
@@ -140,21 +166,21 @@ public class AccountService {
 						temp.setBalance(temp.getBalance() - amount);
 						logger.info("Balance: " + temp.getBalance());
 						return;
-
 					}
 
 				}
+			} else {
+				throw new AccountNotFoundException("Account does not exist.");
 			}
-
-			throw new AccountNotFoundException("Account does not exist.");
 		}
 
 	}
 
-	public void deposit(Long accNum, int amount, String accType) {
-		if (accType == "Savings") {
+	public void deposit(Long accNum, int amount, int accType) {
+		if (accType == 1) {
 			savList = savDao.readDataFromFile();
-			Optional<SavingsAccount> accOptional = savList.stream().filter(e -> e.getAccNum() == accNum).findAny();
+			Optional<SavingsAccount> accOptional = savList.stream().filter(e -> e.getAccNum().equals(accNum)).findAny();
+
 			if (accOptional.isPresent()) {
 				SavingsAccount temp = accOptional.get();
 
@@ -165,14 +191,16 @@ public class AccountService {
 				return;
 
 			}
+
 			throw new AccountNotFoundException("Account does not exist.");
+
 		}
 
-		else if (accType == "Current") {
+		else if (accType == 2) {
 
 			curList = curDao.readDataFromFile();
 
-			Optional<CurrentAccount> accOptional = curList.stream().filter(e -> e.getAccNum() == accNum).findAny();
+			Optional<CurrentAccount> accOptional = curList.stream().filter(e -> e.getAccNum().equals(accNum)).findAny();
 			if (accOptional.isPresent()) {
 				CurrentAccount temp = accOptional.get();
 
@@ -181,9 +209,11 @@ public class AccountService {
 
 				logger.info("Balance: " + temp.getBalance());
 				return;
+			} else {
+				throw new AccountNotFoundException("Account does not exist.");
 			}
-
-			throw new AccountNotFoundException("Account does not exist.");
+		} else {
+			logger.error("Wrong Input!");
 		}
 
 	}
@@ -202,4 +232,17 @@ public class AccountService {
 
 		return Long.valueOf(sb.toString()).longValue();
 	}
+	public static String getSaltString() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 11) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+
+    }
 }
+
