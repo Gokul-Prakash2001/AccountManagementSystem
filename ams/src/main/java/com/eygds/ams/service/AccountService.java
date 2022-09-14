@@ -30,7 +30,7 @@ public class AccountService {
 		String appStatus = "Received";
 		String appRef = getSaltString();
 		logger.info("Application " + appStatus);
-		logger.info("Your application reference ID : "+ appRef);
+		logger.info("Your application reference ID : " + appRef);
 		if (savList.contains(account)) {
 			logger.error("Account with account number " + account.getAccNum() + " already exists.");
 			return null;
@@ -67,7 +67,7 @@ public class AccountService {
 		String appStatus = "Received";
 		String appRef = getSaltString();
 		logger.info("Application " + appStatus);
-		logger.info("Your application reference ID : "+ appRef);
+		logger.info("Your application reference ID : " + appRef);
 		logger.info(appStatus);
 		if (curList.contains(account)) {
 			logger.error("Account with account number " + account.getAccNum() + " already exists.");
@@ -110,7 +110,7 @@ public class AccountService {
 					logger.error("Daily limit reached.");
 					return;
 				} else {
-					if (temp.getPin() != pin) {
+					if (!temp.getPin().equals(pin)) {
 						logger.error("Incorrect pin.");
 						return;
 					} else {
@@ -125,6 +125,7 @@ public class AccountService {
 								temp.setBalance(temp.getBalance() - amount);
 								savList.set(savList.indexOf(temp), temp);
 								logger.info("Balance: " + temp.getBalance());
+								savDao.writeDataToFile(savList);
 								return;
 							}
 						}
@@ -143,7 +144,7 @@ public class AccountService {
 			if (accOptional.isPresent()) {
 				CurrentAccount temp = accOptional.get();
 
-				if (temp.getPin() != pin) {
+				if (!temp.getPin().equals(pin)) {
 					logger.error("Incorrect pin.");
 					return;
 				} else {
@@ -154,6 +155,7 @@ public class AccountService {
 						temp.setWithdrawn(temp.getWithdrawn() + amount);
 						temp.setBalance(temp.getBalance() - amount);
 						logger.info("Balance: " + temp.getBalance());
+						curDao.writeDataToFile(curList);
 						return;
 					}
 
@@ -174,9 +176,10 @@ public class AccountService {
 				SavingsAccount temp = accOptional.get();
 
 				temp.setBalance(temp.getBalance() + amount);
-				savList.set(savList.indexOf(temp), temp);
+				savList.set(savList.indexOf(accOptional.get()), temp);
 
 				logger.info("Balance: " + temp.getBalance());
+				savDao.writeDataToFile(savList);
 				return;
 
 			}
@@ -197,6 +200,7 @@ public class AccountService {
 				curList.set(curList.indexOf(temp), temp);
 
 				logger.info("Balance: " + temp.getBalance());
+				curDao.writeDataToFile(curList);
 				return;
 			} else {
 				throw new AccountNotFoundException("Account does not exist.");
@@ -221,17 +225,17 @@ public class AccountService {
 
 		return Long.valueOf(sb.toString()).longValue();
 	}
+
 	public static String getSaltString() {
-        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder salt = new StringBuilder();
-        Random rnd = new Random();
-        while (salt.length() < 11) { // length of the random string.
-            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-            salt.append(SALTCHARS.charAt(index));
-        }
-        String saltStr = salt.toString();
-        return saltStr;
+		String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		StringBuilder salt = new StringBuilder();
+		Random rnd = new Random();
+		while (salt.length() < 11) { // length of the random string.
+			int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+			salt.append(SALTCHARS.charAt(index));
+		}
+		String saltStr = salt.toString();
+		return saltStr;
 
-    }
+	}
 }
-
