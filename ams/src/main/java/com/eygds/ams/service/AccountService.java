@@ -9,17 +9,6 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-package com.eygds.ams.service;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.eygds.ams.dao.CurAccountDao;
 import com.eygds.ams.dao.SavAccountDao;
 
