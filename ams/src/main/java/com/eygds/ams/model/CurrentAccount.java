@@ -10,13 +10,13 @@ public class CurrentAccount {
 		private int withdrawn;
 		private int balance;
 		private Long accNum;
-		int pin;
+		String pin;
 		
-		public int getPin() {
+		public String getPin() {
 			return pin;
 		}
 
-		public void setPin(int pin) {
+		public void setPin(String pin) {
 			this.pin = pin;
 		}
 
