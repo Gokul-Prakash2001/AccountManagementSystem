@@ -13,7 +13,7 @@ public class SavingsAccount {
 	private int withdrawn;
 	private int balance;
 	private Long accNum;
-	private int pin;
+	private String pin;
 
 	public SavingsAccount() {
 		super();
@@ -103,11 +103,11 @@ public class SavingsAccount {
 		this.accNum = accNum;
 	}
 
-	public int getPin() {
+	public String getPin() {
 		return pin;
 	}
 
-	public void setPin(int pin) {
+	public void setPin(String pin) {
 		this.pin = pin;
 	}
 
